@@ -73,6 +73,7 @@ Apify.main(async () => {
         maxConcurrency = 20,
         searchPages = [],
         searchLimit = 10,
+        maxRequestRetries = 5,
     } = input;
 
     if (debugLog) {
@@ -327,7 +328,7 @@ Apify.main(async () => {
                 maxErrorScore: 0.5,
             },
         },
-        maxRequestRetries: 10,
+        maxRequestRetries,
         maxConcurrency,
         proxyConfiguration: proxyConfig,
         launchContext: {

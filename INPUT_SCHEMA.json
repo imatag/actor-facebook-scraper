@@ -403,7 +403,7 @@
             "type": "string",
             "editor": "javascript",
             "description": "Extend the output item to contain more fields. The raw data is present in the 'data' variable.",
-            "prefill": "({ data, item, customData, Apify }) => {\n    return item;\n}",
+            "prefill": "async ({ data, item, customData, Apify }) => {\n    return item;\n}",
             "sectionCaption": "Extend scraper functionality",
             "sectionDescription": "You can change the output of the items for your dataset here, or add additional behavior on the scraper."
         },
@@ -438,6 +438,14 @@
             "title": "Use stealth",
             "description": "Enable stealth on headless Chrome. Enable this only if you're having problems with blocking.",
             "type": "boolean"
+        },
+        "maxRequestRetries": {
+            "title": "Max request retries",
+            "description": "How many times to retry until giving up",
+            "default": 5,
+            "prefill": 5,
+            "type": "integer",
+            "editor": "number"
         },
         "maxConcurrency": {
             "title": "Max concurrency",

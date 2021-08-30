@@ -85,6 +85,7 @@ export interface Schema {
     searchLimit?: number;
     maxConcurrency?: number;
     searchPages?: string[];
+    maxRequestRetries?: number;
 }
 
 export interface FbPageInfo {
