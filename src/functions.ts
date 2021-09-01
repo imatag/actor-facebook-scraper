@@ -1161,6 +1161,9 @@ export const resourceCache = (paths: RegExp[]) => {
                     cache.set(url, {
                         loaded: false,
                     });
+                } else if (req.resourceType() === 'media') {
+                    await route.abort();
+                    return;
                 }
 
                 await route.continue();

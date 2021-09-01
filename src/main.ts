@@ -755,29 +755,31 @@ Apify.main(async () => {
                         });
                     }
 
-                    const postCount = await getPostComments(page, {
-                        max,
-                        mode,
-                        date,
-                        request,
-                        add: async (comment) => {
-                            await map.append(username, async (value) => {
-                                postContent.postComments.comments.push(comment);
-                                return value;
-                            });
-                        },
-                    });
-
-                    await map.append(username, async (value) => {
-                        postContent.postComments.count = postCount;
-                        return value;
-                    });
-
-                    if (max && minComments && (postContent?.postComments?.comments?.length ?? 0) < minComments) {
-                        throw new InfoError(`Minimum comment count ${minComments} not met, retrying`, {
-                            namespace: 'threshold',
-                            url: page.url(),
+                    if (postStats.comments > 0) {
+                        const postCount = await getPostComments(page, {
+                            max,
+                            mode,
+                            date,
+                            request,
+                            add: async (comment) => {
+                                await map.append(username, async (value) => {
+                                    postContent.postComments.comments.push(comment);
+                                    return value;
+                                });
+                            },
                         });
+
+                        await map.append(username, async (value) => {
+                            postContent.postComments.count = postCount;
+                            return value;
+                        });
+
+                        if (max && minComments && (postContent?.postComments?.comments?.length ?? 0) < minComments) {
+                            throw new InfoError(`Minimum comment count ${minComments} not met, retrying`, {
+                                namespace: 'threshold',
+                                url: page.url(),
+                            });
+                        }
                     }
 
                     log.info(`Processed post in ${postTimer() / 1000}s`, { url: request.url });
