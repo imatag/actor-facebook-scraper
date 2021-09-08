@@ -436,20 +436,27 @@ Apify.main(async () => {
                 setTimeout(f);
             });
         }],
-        postNavigationHooks: [async ({ page, request, browserController }) => {
-            if (!page.isClosed()) {
-                // TODO: work around mixed context bug
-                if (page.url().includes(MOBILE_HOST) && !request.userData.useMobile) {
-                    try {
-                        await browserController.close();
-                    } catch (e) {}
-                    throw new InfoError(`Mismatched mobile / desktop`, {
-                        namespace: 'internal',
-                        url: request.url,
-                    });
+        postNavigationHooks: [
+            async ({ page }) => {
+                if (!page.isClosed()) {
+                    await page.bringToFront();
+                }
+            },
+            async ({ page, request, browserController }) => {
+                if (!page.isClosed()) {
+                    // TODO: work around mixed context bug
+                    if (page.url().includes(MOBILE_HOST) && !request.userData.useMobile) {
+                        try {
+                            await browserController.close();
+                        } catch (e) {}
+                        throw new InfoError(`Mismatched mobile / desktop`, {
+                            namespace: 'internal',
+                            url: request.url,
+                        });
+                    }
                 }
             }
-        }],
+        ],
         handlePageFunction: async ({ request, page, session, response, browserController }) => {
             const { userData } = request;
 
