@@ -245,7 +245,7 @@ async ({ page, LABELS, label, request, username, map, fns, customData, Apify }) 
 
 ## Limitations
 
--   Facebook Scraper does not scrape personal data from profiles. We do not consider scraping vast amounts of personal data ethical and discourage anyone from doing so. Please read our blog post about  [creating ethical and compliant scrapers](https://blog.apify.com/is-web-scraping-legal/)  if you would like to learn more.
+-   Facebook Scraper does not scrape personal data from profiles.
 -   No login support.
 -   The "About" page can't be accessed publicly.
 -   Some pages with Facebook's new layout won't load posts and are not supported.
@@ -261,13 +261,6 @@ We do not consider scraping vast amounts of personal data ethical and discourage
 
 Personal data is protected by GDPR in the European Union and other laws and regulations around the world. You should not scrape it unless you have a legitimate reason to do so. If you're unsure whether your reason is legitimate, consult your lawyers. Please read our blog post about  [creating ethical and compliant scrapers](https://blog.apify.com/is-web-scraping-legal/)  if you would like to learn more.
 
-## Versioning
-
-This project adheres to semver.
-
--   Major versions means a change in the output or input format, and a change in behavior.
--   Minor versions mean new features
--   Patch versions mean bug fixes/optimizations (changes to  `README.md`  aren't tagged)
 
 ## Changelog
 
