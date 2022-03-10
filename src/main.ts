@@ -1,4 +1,8 @@
 import Apify from 'apify';
+import FPG = require('fingerprint-generator');
+import { FingerprintInjector } from 'fingerprint-injector';
+import { firefox } from 'playwright';
+
 import { InfoError } from './error';
 import { LABELS, CSS_SELECTORS, MOBILE_HOST } from './constants';
 import * as fns from './functions';
@@ -17,7 +21,6 @@ import {
 } from './page';
 import { statePersistor, emptyState } from './storage';
 import type { Schema, FbLabel, FbSection, FbPage, FbCommentsMode, FbPost } from './definitions';
-
 import LANGUAGES = require('./languages.json');
 
 const { log } = Apify.utils;
@@ -29,7 +32,6 @@ const {
     extractUsernameFromUrl,
     generateSubpagesFromUrl,
     stopwatch,
-    executeOnDebug,
     storyFbToDesktopPermalink,
     proxyConfiguration,
     minMaxDates,
@@ -99,7 +101,6 @@ Apify.main(async () => {
             log.warning(`!!!!!!!!!!!!!!!!!!!!!!!\n\nYou're not using RESIDENTIAL proxy group, it won't work as expected. Contact support@apify.com or on Intercom to give you proxy trial\n\n!!!!!!!!!!!!!!!!!!!!!!!`);
         }
     };
-
 
     const shaderError = () => {
         if (Apify.isAtHome() && proxyConfig?.groups?.includes('SHADER')) {
@@ -318,12 +319,16 @@ Apify.main(async () => {
         },
     });
 
+    const fingerPrints = new FPG({
+        browsers: [{ name: "firefox", minVersion: 90 }],
+        locales: [language],
+        operatingSystems: ['linux', 'android'],
+    });
+
     const crawler = new Apify.PlaywrightCrawler({
         requestQueue,
         useSessionPool: true,
         sessionPoolOptions: {
-            persistStateKeyValueStoreId: sessionStorage || undefined,
-            maxPoolSize: sessionStorage ? 1 : undefined,
             sessionOptions: {
                 maxErrorScore: 0.5,
             },
@@ -332,67 +337,70 @@ Apify.main(async () => {
         maxConcurrency,
         proxyConfiguration: proxyConfig,
         launchContext: {
+            useIncognitoPages: true,
+            launcher: firefox,
             launchOptions: {
                 devtools: debugLog,
                 headless: false,
             },
         },
         browserPoolOptions: {
+            useFingerprints: false,
+            retireBrowserAfterPageCount: 1,
             maxOpenPagesPerBrowser: 1, // required to use one IP per tab
             preLaunchHooks: [async (pageId, launchContext) => {
                 const { request } = crawler.crawlingContexts.get(pageId);
 
                 const { userData: { useMobile } } = request;
 
-                // listing need to start in a desktop version
-                // page needs a mobile viewport
-                const userAgent = useMobile
-                    ? 'Mozilla/5.0 (Linux; Android 10; SM-A205U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36'
-                    : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_3_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36';
+                const { fingerprint, headers } = fingerPrints.getFingerprint({
+                    devices: useMobile ? ['mobile'] : ['desktop'],
+                });
 
-                request.userData.userAgent = userAgent;
+                request.userData.headers = headers;
+                request.userData.fingerprint = fingerprint;
 
                 launchContext.launchOptions = {
                     ...launchContext.launchOptions,
                     viewport: {
-                        height: useMobile ? 1520 : 1080,
-                        width: useMobile ? 720 : 1920,
+                        width: fingerprint.screen.width,
+                        height: fingerprint.screen.height,
                     },
-                    userAgent,
+                    userAgent: fingerprint.userAgent,
+                    locale: fingerprint.navigator.language,
                     bypassCSP: true,
                     ignoreHTTPSErrors: true,
-                    locale: language,
-                    hasTouch: useMobile,
-                    isMobile: useMobile,
-                    deviceScaleFactor: useMobile ? 2 : 1,
+                    fingerprint,
                 };
             }],
-            postPageCloseHooks: [async (pageId, browserController) => {
-                if (browserController?.launchContext?.session?.isUsable() === false) {
-                    log.debug('Closing browser, session is not usable');
-                    try {
-                        await browserController.close();
-                    } catch (e) {
-                        // ignore errors when it fails to close
-                    }
+            postPageCreateHooks: [async (page, browserController) => {
+                const { launchContext } = browserController;
+                const { useIncognitoPages, isFingerprintInjected, id } = launchContext;
+                const { request } = crawler.crawlingContexts.get(id);
+
+                if (isFingerprintInjected) {
+                    // If not incognitoPages are used we would add the injection script over and over which could cause memory leaks.
+                    return;
+                }
+
+                await new FingerprintInjector().attachFingerprintToPlaywright(page.context(), request.userData.fingerprint);
+
+                if (!useIncognitoPages) {
+                    // If not incognitoPages are used we would add the injection script over and over which could cause memory leaks.
+                    launchContext.extend({ isFingerprintInjected: true });
                 }
             }],
         },
-        persistCookiesPerSession: sessionStorage !== '',
+        persistCookiesPerSession: false,
         handlePageTimeoutSecs, // more comments, less concurrency
         preNavigationHooks: [async ({ page, request, browserController }, gotoOptions) => {
-            gotoOptions.waitUntil = request.userData.label === LABELS.POST || (request.userData.label === LABELS.PAGE && ['posts', 'reviews'].includes(request.userData.sub))
-                ? 'load'
-                : 'domcontentloaded';
+            gotoOptions.waitUntil = request.userData.label === LABELS.POST
+                || (request.userData.label === LABELS.PAGE && ['posts', 'reviews'].includes(request.userData.sub))
+                ? 'load' : 'domcontentloaded';
+
             gotoOptions.timeout = 60000;
 
             await setLanguageCodeToCookie(language, page);
-
-            await executeOnDebug(async () => {
-                await page.exposeFunction('logMe', (...args: any[]) => {
-                    console.log(...args); // eslint-disable-line no-console
-                });
-            });
 
             await page.exposeFunction('unc', (element?: HTMLElement) => {
                 try {
@@ -442,20 +450,17 @@ Apify.main(async () => {
                     await page.bringToFront();
                 }
             },
-            async ({ page, request, browserController }) => {
+            async ({ page, request }) => {
                 if (!page.isClosed()) {
                     // TODO: work around mixed context bug
                     if (page.url().includes(MOBILE_HOST) && !request.userData.useMobile) {
-                        try {
-                            await browserController.close();
-                        } catch (e) {}
                         throw new InfoError(`Mismatched mobile / desktop`, {
                             namespace: 'internal',
                             url: request.url,
                         });
                     }
                 }
-            }
+            },
         ],
         handlePageFunction: async ({ request, page, session, response, browserController }) => {
             const { userData } = request;

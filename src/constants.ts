@@ -14,7 +14,7 @@ export const LABELS: Record<FbLabel, FbLabel> = {
 };
 
 export const CSS_SELECTORS = {
-    SEE_MORE: '[src*="HOn-DOfNHK1"],[src*="ZfrShcKhxxi"]',
+    SEE_MORE: '[src*="HOn-DOfNHK1"],[src*="ZfrShcKhxxi"],[src*="ET8r1v-4LZF"],[src*="AjSHbWVH9-D"],[src*="AjSHbWVH9-D"],[src*="4hk0pJW6v-1"]',
     POST_TIME: 'abbr',
     POST_CONTAINER: '[role="feed"] [role="article"]',
     PAGE_TRANSPARENCY: '[img*="ot671xmFQRs"]',
@@ -25,7 +25,7 @@ export const CSS_SELECTORS = {
     VERIFIED: 'img[src*="y4dAXG_mKhh"]',
     VALID_PAGE: 'meta[property="og:url"]',
     META_DESCRIPTION: 'meta[property="og:description"]',
-    MOBILE_BODY_CLASS: 'body.touch.x2.android',
+    MOBILE_BODY_CLASS: 'body.touch.x1.portrait',
     COMMENTS_CONTAINER: 'form[rel="async"] ul',
     MOBILE_LOADING_INDICATOR: '[data-sigil*="m-loading-indicator-animate"][style]',
     LOAD_COMMENTS: '[role="article"] a[role="button"]:not([ajaxify]):not([target="_blank"])',

@@ -310,7 +310,7 @@ export const createPageSelector = <E extends Element, C extends (els: ElementHan
  * Find a field by image and get it's adjacent div text
  */
 export const createSelectorFromImageSrc = (names: string[]) => {
-    const selectors = names.map(name => `img[src*="${name}.png"]`).join(',');
+    const selectors = uniqueNonEmptyArray(names).map(name => `img[src*="${name}.png"]`).join(',');
 
     return async (page: Page) => {
         try {
@@ -365,24 +365,117 @@ export const createSelectorFromImageSrc = (names: string[]) => {
  * Text selectors that uses image names as a starting point
  */
 export const imageSelectors = {
-    checkins: createSelectorFromImageSrc(['a0b87sO1_bq', '9Zt6zuj8e1D', '2lBnDDIRCyn']),
-    website: createSelectorFromImageSrc(['TcXGKbk-rV1', 'xVA3lB-GVep', 'EaDvTjOwxIV', 'aE7VLFYMYdl', '_E0siE7VRxg', 'ZWx4MakmUd4', 'D9kpGIZvg_a']),
-    categories: createSelectorFromImageSrc(['Knsy-moHXi6', 'LwDWwC1d0Rx', '3OfQvJdYD_W', 'Esxx6rJcLfG', 'Ae8V14AHXF3', 'I5oOkD-Jgg9']),
-    email: createSelectorFromImageSrc(['C1eWXyukMez', 'vKDzW_MdhyP', 'vPTKpTJr2Py', '7wycyFqCurV', 'usNPpfkTtic']),
-    info: createSelectorFromImageSrc(['u_owK2Sz5n6', 'fTt3W6Nw8z-', 'ufx6pe0BYZ9', 'nUK82gYKq3c', 'EXVJNaeBMtn']), // about / founded
-    impressum: createSelectorFromImageSrc(['7Pg05R2u_QQ', 'xJ79lPp3fxx', 'W1Gz3-6Jba9']),
-    instagram: createSelectorFromImageSrc(['EZj5-1P4vhh', 'kupnBwrQuQt', '4BDZkGZPYV7']),
-    twitter: createSelectorFromImageSrc(['IP-E0-f5J0m', '4D5dB8JnGdq', 'ITwSn0piq6L']),
-    youtube: createSelectorFromImageSrc(['MyCpzAb80U1']),
-    overview: createSelectorFromImageSrc(['uAsvCr33XaU', 'J7QgCgbppF8']),
-    awards: createSelectorFromImageSrc(['rzXNHRgEfui', 'catvAig7x2x']),
-    mission: createSelectorFromImageSrc(['z-wfU5xgk6Z', '3vccp1jK8fn']),
-    address: createSelectorFromImageSrc(['h2e1qHNjIzG', 'ya-WX5CZARc']),
-    phone: createSelectorFromImageSrc(['6oGknb-0EsE', 'znYEAkatLCe', 'BaiUsFiMGWy', 'BkWgVZPGfa0']),
-    priceRange: createSelectorFromImageSrc(['q-WY9vrfkFZ', 'cAfaJdw2ZpN', 'RoNYAkqnZi0']),
-    products: createSelectorFromImageSrc(['bBMZ-3vnEih', '9gnPGIXZf0x', 'kqozvTg_ESH']),
-    transit: createSelectorFromImageSrc(['uQHLMTQ0fUS', 'hHYECN5fVxU']),
-    payment: createSelectorFromImageSrc(['Dx9c291MaDt', '8qES65kbIT8']),
+    checkins: createSelectorFromImageSrc([
+        'a0b87sO1_bq',
+        '9Zt6zuj8e1D',
+        '2lBnDDIRCyn',
+        'GWGxn_Tx65X',
+    ]),
+    website: createSelectorFromImageSrc([
+        'TcXGKbk-rV1',
+        'xVA3lB-GVep',
+        'EaDvTjOwxIV',
+        'aE7VLFYMYdl',
+        '_E0siE7VRxg',
+        'ZWx4MakmUd4',
+        'D9kpGIZvg_a',
+        '8wOc3tNq50V',
+    ]),
+    categories: createSelectorFromImageSrc([
+        'Knsy-moHXi6',
+        'LwDWwC1d0Rx',
+        '3OfQvJdYD_W',
+        'Esxx6rJcLfG',
+        'Ae8V14AHXF3',
+        'I5oOkD-Jgg9',
+        'gj95_yjaAT4',
+        'w5AIfKeA_TA',
+        'T9Za_TUttgo',
+    ]),
+    email: createSelectorFromImageSrc([
+        'C1eWXyukMez',
+        'vKDzW_MdhyP',
+        'vPTKpTJr2Py',
+        '7wycyFqCurV',
+        'usNPpfkTtic',
+        '3-GrdQP6b-H',
+        'ICWuDoCkXlU',
+    ]),
+    info: createSelectorFromImageSrc([
+        'u_owK2Sz5n6',
+        'fTt3W6Nw8z-',
+        'ufx6pe0BYZ9',
+        'nUK82gYKq3c',
+        'EXVJNaeBMtn',
+        'yzxwaDMdZAx',
+    ]), // about / founded
+    impressum: createSelectorFromImageSrc([
+        '7Pg05R2u_QQ',
+        'xJ79lPp3fxx',
+        'W1Gz3-6Jba9',
+    ]),
+    instagram: createSelectorFromImageSrc([
+        'EZj5-1P4vhh',
+        'kupnBwrQuQt',
+        '4BDZkGZPYV7',
+        'oEVThCLaFzH',
+    ]),
+    twitter: createSelectorFromImageSrc([
+        'IP-E0-f5J0m',
+        '4D5dB8JnGdq',
+        'ITwSn0piq6L',
+        'KsTwmujzVFu',
+        '5ZMPRGlKDnc',
+    ]),
+    youtube: createSelectorFromImageSrc([
+        'MyCpzAb80U1',
+        'FVhTPqCYj5m',
+        'Bt1bwVpFQWx',
+        '7MR5nSXB08u',
+    ]),
+    overview: createSelectorFromImageSrc([
+        'uAsvCr33XaU',
+        'J7QgCgbppF8',
+    ]),
+    awards: createSelectorFromImageSrc([
+        'rzXNHRgEfui',
+        'catvAig7x2x',
+    ]),
+    mission: createSelectorFromImageSrc([
+        'z-wfU5xgk6Z',
+        '3vccp1jK8fn',
+    ]),
+    address: createSelectorFromImageSrc([
+        'h2e1qHNjIzG',
+        'ya-WX5CZARc',
+        'PwUkFLBBA85',
+        'N1dbxwtlqJS',
+    ]),
+    phone: createSelectorFromImageSrc([
+        '6oGknb-0EsE',
+        'znYEAkatLCe',
+        'BaiUsFiMGWy',
+        'BkWgVZPGfa0',
+        'IIz7DmH3RfV',
+    ]),
+    priceRange: createSelectorFromImageSrc([
+        'q-WY9vrfkFZ',
+        'cAfaJdw2ZpN',
+        'RoNYAkqnZi0',
+    ]),
+    products: createSelectorFromImageSrc([
+        'bBMZ-3vnEih',
+        '9gnPGIXZf0x',
+        'kqozvTg_ESH',
+    ]),
+    transit: createSelectorFromImageSrc([
+        'uQHLMTQ0fUS',
+        'hHYECN5fVxU',
+    ]),
+    payment: createSelectorFromImageSrc([
+        'Dx9c291MaDt',
+        '8qES65kbIT8',
+    ]),
 };
 
 /**
@@ -899,40 +992,24 @@ export const scrollUntil = async (page: Page, { doScroll = () => true, sleepMill
  * Click "See More" independently of language
  */
 export const clickSeeMore = async (page: Page) => {
-    let clicks = 0;
+    try {
+        log.info('Clicking see more', { url: page.url() });
 
-    for (const seeMore of await page.$$(CSS_SELECTORS.SEE_MORE)) {
-        try {
-            if (page.isClosed()) {
-                break;
-            }
-
-            log.info('Clicking see more', { url: page.url() });
-
-            const promise = page.waitForResponse((r: HTTPResponse) => {
+        const [response] = await Promise.all([
+            page.waitForResponse((r) => {
                 return r.url().includes('ajax/bootloader-endpoint');
-            }, { timeout: 10000 });
+            }, { timeout: 10000 }).catch(() => null),
+            page.locator(CSS_SELECTORS.SEE_MORE).locator('xpath=ancestor::*[@role="button"]').first().click(),
+        ]);
 
-            await seeMore.evaluate(async (e: HTMLDivElement) => {
-                e.closest<HTMLDivElement>('[role="button"]')?.click();
-            });
-            await promise;
-
-            await sleep(2000);
-
-            clicks++;
-
-            break;
-        } catch (e) {
-            log.debug(`See more error: ${e.message}`, { url: page.url() });
+        if (response?.ok()) {
+            await sleep(3000);
+        } else {
+            log.debug('No See more found', { url: page.url() });
         }
+    } catch (e) {
+        log.debug(`See more error: ${e.message}`, { url: page.url() });
     }
-
-    if (clicks === 0) {
-        log.debug('No See more found', { url: page.url() });
-    }
-
-    return clicks > 0;
 };
 
 /**
