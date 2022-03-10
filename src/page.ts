@@ -623,6 +623,12 @@ export const getFieldInfos = async (page: Page, currentState: Partial<FbPage>): 
         });
     });
 
+    const splitChar = (s: string[]) => {
+        return s.flatMap(x => x.split(/[·\n]+/gm))
+            .map((x) => x.trim())
+            .filter(x => x);
+    };
+
     // match the results with the selectors name, to generate
     // the output object. existing non-empty entries won't be
     // overwritten.
@@ -632,8 +638,9 @@ export const getFieldInfos = async (page: Page, currentState: Partial<FbPage>): 
     const fieldsInfo: Partial<FbPage> = selectorKeys.reduce((out, key, index) => {
         switch (key) {
             case 'categories':
-                out[key] = uniqueNonEmptyArray((out[key] || [])
-                    .concat(result[index].map(s => s.split(/[·\n]+/gm)).flat()).map(s => s.trim()).filter(s => s)) || null;
+                out[key] = uniqueNonEmptyArray(
+                    (out[key] || []).concat(splitChar(result[index])).filter(s => s),
+                ) || null;
                 break;
             case 'priceRange':
                 out[key] = out[key] || (result[index]
@@ -668,7 +675,7 @@ export const getFieldInfos = async (page: Page, currentState: Partial<FbPage>): 
                 break;
             default:
                 // arrays
-                out[key] = uniqueNonEmptyArray((out[key] || []).concat(result[index].join('\n')));
+                out[key] = uniqueNonEmptyArray((out[key] || []).concat(splitChar(result[index]).join('\n')));
         }
 
         return out;

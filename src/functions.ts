@@ -462,11 +462,13 @@ export const imageSelectors = {
         'q-WY9vrfkFZ',
         'cAfaJdw2ZpN',
         'RoNYAkqnZi0',
+        '1INBimNyQTM',
     ]),
     products: createSelectorFromImageSrc([
         'bBMZ-3vnEih',
         '9gnPGIXZf0x',
         'kqozvTg_ESH',
+        'OlgM0RrrK_k',
     ]),
     transit: createSelectorFromImageSrc([
         'uQHLMTQ0fUS',
