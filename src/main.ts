@@ -251,6 +251,7 @@ Apify.main(async () => {
                     userData: {
                         override: request.userData.override,
                         label: LABELS.POST,
+                        postId: fns.getPostId(url),
                         useMobile: false,
                         username,
                         canonical: storyFbToDesktopPermalink({ url, username })?.toString(),
@@ -706,7 +707,7 @@ Apify.main(async () => {
                 } else if (label === LABELS.POST) {
                     const postTimer = stopwatch();
 
-                    log.debug('Started processing post', { url: request.url });
+                    log.debug('Started processing post', { url: request.url, postId: request.userData.postId });
 
                     // actually parse post content here, it doesn't work on
                     // mobile address

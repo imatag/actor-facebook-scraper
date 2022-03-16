@@ -9,6 +9,23 @@ import type { FbLocalBusiness, FbSection, FbLabel, FbReview, Schema, FbError, Fb
 
 const { log, sleep } = Apify.utils;
 
+export const getPostId = (url: string) => {
+    try {
+        const n = new URL(url);
+        const idFromPath = n.pathname.match(/\/(?:photos|posts)\/([^/?]{6,})/)?.[1];
+
+        if (idFromPath) {
+            return idFromPath;
+        }
+
+        if (n.searchParams.has('story_fbid')) {
+            return n.searchParams.get('story_fbid');
+        }
+    } catch (e) {
+        log.debug(`getPostId`, { e: e.message });
+    }
+};
+
 /**
  * Monkey-patch the handleRequestFunction failed... error
  */
@@ -723,7 +740,7 @@ export const setLanguageCodeToCookie = async (language: string, page: Page) => {
  * Workaround the /photos/ url
  */
 export const photoToPost = (url: string) => {
-    const matches = `${url}`.match(/\/photos\/a\.(\d+)/);
+    const matches = `${url}`.match(/\/photos\/a\.([^/?]{6,})/);
 
     if (matches?.[1]) {
         return storyFbToDesktopPermalink({ url, postId: matches[1] })?.toString();
@@ -771,7 +788,7 @@ export const getUrlLabel = (url: string): FbLabel => {
             return LABELS.PHOTO;
         }
 
-        if (/\/posts\/\d+/.test(parsedUrl.pathname)) {
+        if (/\/posts\/[^/]{7,}/.test(parsedUrl.pathname)) {
             return LABELS.POST;
         }
 
