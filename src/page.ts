@@ -714,16 +714,32 @@ export const getPostInfoFromScript = async (page: Page, request: Apify.Request):
     // fetch "timeslice" scripts, don't want related posts
     const html = await page.$$eval('script[nonce]:not([type])', async (scripts, postId) => {
         return scripts.filter((s) => {
-            return s.innerHTML.includes(postId);
+            return s.innerHTML.includes(postId) || (
+                s.innerHTML.includes('comment_count')
+                && s.innerHTML.includes('reaction_count')
+                && s.innerHTML.includes('share_count')
+            );
         }).map((s) => s.innerHTML).join('\n');
     }, request.userData.postId);
 
-    const commentsMatch = html.matchAll(/comment_count:\{total_count:(\d+)/g);
-    const reactionsMatch = html.matchAll(/reaction_count:\{count:(\d+)/g);
-    const shareMatch = html.matchAll(/share_count:\{count:(\d+)/g);
+    const commentsMatch = [...html.matchAll(/comment_count:\{total_count:(\d+)/g)];
+    const reactionsMatch = [...html.matchAll(/reaction_count:\{count:(\d+)/g)];
+    const shareMatch = [...html.matchAll(/share_count:\{count:(\d+)/g)];
 
-    const maxFromMatches = (matches: IterableIterator<RegExpMatchArray>) => [...matches]
-        .reduce((count, [, value]) => (+value > count ? +value : count), 0);
+    if (!html || !commentsMatch.length || !reactionsMatch.length || !shareMatch.length) {
+        throw new InfoError('Could not load post data', {
+            namespace: 'getPostInfoFromScript',
+            url: page.url(),
+            userData: {
+                c: commentsMatch.length,
+                r: reactionsMatch.length,
+                s: shareMatch.length,
+            },
+        });
+    }
+
+    const maxFromMatches = (matches: RegExpMatchArray[]) => matches
+        .reduce((maxCount, [, value]) => (+value > maxCount ? +value : maxCount), 0);
 
     const reactionsBreakdown = (() => {
         try {
@@ -970,7 +986,7 @@ export const getPostComments = async (
                         loadComments.click();
                     }
 
-                    if (tries < 10) {
+                    if (tries < 30) {
                         setTimeout(tryLoad, tries * 200);
                     } else {
                         resolve(false);
