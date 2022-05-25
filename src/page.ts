@@ -782,7 +782,7 @@ export const getPostContent = async (page: Page): Promise<Partial<FbPost>> => {
         window.unc(userContent);
 
         const postText = userContent.innerText.trim();
-        const images: HTMLImageElement[] = Array.from(el.querySelectorAll('img[src*="scontent"]'));
+        const images: HTMLImageElement[] = Array.from(el.querySelectorAll('img[src*="scontent"], img[src*="://external"]'));
         const links: HTMLAnchorElement[] = Array.from(el.querySelectorAll('[href*="l.facebook.com/l.php?u="]'));
 
         return {
