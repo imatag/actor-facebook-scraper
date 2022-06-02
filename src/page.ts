@@ -275,6 +275,8 @@ export const getPostUrls = async (page: Page, {
                 if (inDateRange && parsed && !urls.has(parsed.toString())) {
                     const story_fbid = parsed.searchParams.get('story_fbid');
 
+                    log.Debug("Add new post url: ", parsed.toString())
+
                     urls.add(parsed.toString());
 
                     if (!parsed.pathname.includes('/groups/') && !parsed.pathname.includes('/profile.php')) {
