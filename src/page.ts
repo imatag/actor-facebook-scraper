@@ -261,6 +261,8 @@ export const getPostUrls = async (page: Page, {
                 if (inDateRange && parsed && !urls.has(parsed.toString())) {
                     const story_fbid = parsed.searchParams.get('story_fbid');
 
+                    log.debug("add new post url", {url : parsed.toString()});
+
                     urls.add(parsed.toString());
 
                     await requestQueue.addRequest({
