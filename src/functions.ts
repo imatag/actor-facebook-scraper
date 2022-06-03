@@ -550,6 +550,18 @@ export const pageSelectors = {
                 const isPinned = !!(article.parentElement?.querySelector('article ~ img'));
                 const url = article.querySelector<HTMLAnchorElement>('a[href^="/story.php"]')?.href;
 
+
+
+                const postLink = article.querySelector<HTMLAnchorElement>('a[href*="/l.php"]')?.href;
+                let pl = article.querySelector<HTMLAnchorElement>('a[href*="/l.php"]');
+                let postImg = null;
+                if (pl !== null && pl.parentElement !== null){
+                    postImg = pl.parentElement.querySelector<HTMLImageElement>('img[src*="://external"],img[src*="scontent"]')?.src;
+                }
+
+                log.debug("post meta", {postlink: postLink, postimg: postImg});
+
+
                 if (!url) {
                     return null;
                 }
