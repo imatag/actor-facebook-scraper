@@ -543,7 +543,9 @@ export const pageSelectors = {
     }),
     // get metadata from posts
     posts: createPageSelector(CSS_SELECTORS.POST_TIME, 'posts', async (els) => {
+        log.debug(`create page selector for posts`);
         return evaluateFilterMap(els, async (el) => {
+            log.debug(`evaluate filter map , with post element`);
             const article = el.closest<HTMLDivElement>('article');
 
             if (article) {
