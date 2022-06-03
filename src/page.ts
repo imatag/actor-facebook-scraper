@@ -275,10 +275,14 @@ export const getPostUrls = async (page: Page, {
                 if (inDateRange && parsed && !urls.has(parsed.toString())) {
                     const story_fbid = parsed.searchParams.get('story_fbid');
 
-                    log.debug("Add new post url: ", { url: parsed.toString() });
+                    log.debug("Add new post url to urls", { parsed: parsed?.toString(), });
 
                     urls.add(parsed.toString());
 
+                    log.debug("do not requeue post -> we want to grab post link from here")
+
+
+                    /*
                     if (!parsed.pathname.includes('/groups/') && !parsed.pathname.includes('/profile.php')) {
                         await requestQueue.addRequest({
                             url: parsed.toString(),
@@ -296,6 +300,7 @@ export const getPostUrls = async (page: Page, {
                             },
                         });
                     }
+                    */
                 }
             }
         } catch (e) {
