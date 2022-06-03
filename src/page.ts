@@ -211,6 +211,8 @@ export const getPostUrls = async (page: Page, {
     const finish = deferred(); // gracefully finish
     const currentUrl = page.url();
 
+    log.debug("enter getPostUrls", { current: currentUrl, urls: urls});
+
     const start = stopwatch();
     const control = DelayAbort(60000);
     const scrollingSleep = 1500;
@@ -219,6 +221,7 @@ export const getPostUrls = async (page: Page, {
 
     const getPosts = async () => {
         try {
+            log.debug("enter getPosts", { current: page.url()})
             const posts = await pageSelectors.posts(page, scrollingSleep * 2);
             counter.empty(!posts.length);
             counter.add(posts.length);
