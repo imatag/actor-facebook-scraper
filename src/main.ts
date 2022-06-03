@@ -573,6 +573,9 @@ Apify.main(async () => {
                 } else if (userData.label === LABELS.PAGE) {
                     const username = extractUsernameFromUrl(request.url);
 
+
+                    log.debug(`handle page -> ${userData.sub}`)
+
                     switch (userData.sub) {
                         // Main landing page
                         case 'home':
