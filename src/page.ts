@@ -299,10 +299,26 @@ export const getPostUrls = async (page: Page, {
                         postUrl: url,
                         postImages: [...new Set([
                             {
-                                link: postLink,
+                                //link: postLink,
                                 image: postImg,
                             }
-                        ])],
+                        ].map((pimg) => {
+
+
+                            try {
+                                const url = new URL(pimg.image || '');
+
+
+
+                                pimg.image = url.searchParams.get('url') || pimg.image;
+
+
+                            } catch (e) {
+                              // do nothing
+                            }
+
+                            return pimg;
+                        }))],
                         //postLinks: [postLink],
 
                         postLinks: [...new Set(
