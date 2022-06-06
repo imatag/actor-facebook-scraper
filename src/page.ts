@@ -223,10 +223,15 @@ export const getPostUrls = async (page: Page, {
         try {
             log.debug("enter getPosts", { current: page.url()})
             const posts = await pageSelectors.posts(page, scrollingSleep * 2);
+            log.debug("we have posts", {posts:posts});
             counter.empty(!posts.length);
             counter.add(posts.length);
 
-            for (const { isPinned, url, ft } of posts) {
+            for (const { isPinned, url, ft, postLink, postImg } of posts) {
+
+                log.debug("post link", {pl: postLink})
+                log.debug("post img", {pimg: postImg})
+
                 control.postpone();
 
                 if (urls.size >= max || counter.isOver()) {

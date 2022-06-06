@@ -543,28 +543,24 @@ export const pageSelectors = {
     }),
     // get metadata from posts
     posts: createPageSelector(CSS_SELECTORS.POST_TIME, 'posts', async (els) => {
+        log.debug("**********");
         log.debug(`create page selector for posts`);
+        log.debug("**********");
         return evaluateFilterMap(els, async (el) => {
-            log.debug(`evaluate filter map , with post element`);
             const article = el.closest<HTMLDivElement>('article');
 
             if (article) {
                 const isPinned = !!(article.parentElement?.querySelector('article ~ img'));
                 const url = article.querySelector<HTMLAnchorElement>('a[href^="/story.php"]')?.href;
 
-                try {
-
-                    const postLink = article.querySelector<HTMLAnchorElement>('a[href*="/l.php"]')?.href;
-                    let pl = article.querySelector<HTMLAnchorElement>('a[href*="/l.php"]');
-                    let postImg = null;
-                    if (pl !== null && pl.parentElement !== null){
-                        postImg = pl.parentElement.querySelector<HTMLImageElement>('img[src*="://external"],img[src*="scontent"]')?.src;
-                    }
-
-                    log.debug("post meta", {postlink: postLink, postimg: postImg});
-                } catch (e) {
-                    log.debug("error in custom post meta extraction", {err: e})
+                const postLink = article.querySelector<HTMLAnchorElement>('[href*="l.facebook.com/l.php?u="]')?.href;
+                let pl = article.querySelector<HTMLAnchorElement>('[href*="l.facebook.com/l.php?u="]');
+                let postImg = null;
+                if (pl !== null && pl.parentElement !== null){
+                    postImg = pl.parentElement.querySelector<HTMLImageElement>('img[src*="://external"],img[src*="scontent"]')?.src;
                 }
+
+                //log.debug("post meta", {postlink: postLink, postimg: postImg});
 
                 if (!url) {
                     return null;
@@ -578,6 +574,8 @@ export const pageSelectors = {
                             ft: JSON.parse(ft as any) as FbFT,
                             url,
                             isPinned,
+                            postLink,
+                            postImg
                         };
 
                         return result;
@@ -1027,6 +1025,9 @@ export const scrollUntil = async (page: Page, { doScroll = () => true, sleepMill
  * Click "See More" independently of language
  */
 export const clickSeeMore = async (page: Page) => {
+    log.debug('skipping clickSeeMore');
+    return ;
+
     try {
         log.info('Clicking see more', { url: page.url() });
 

@@ -652,7 +652,7 @@ Apify.main(async () => {
                                 }
                             }
 
-                            log.debug("get post urls for page", { p: page });
+                            log.debug("get post urls for page");
 
                             // We don't do anything here, we enqueue posts to be
                             // read on their own phase/label
@@ -665,7 +665,7 @@ Apify.main(async () => {
                                 minPosts,
                             });
 
-                            log.debug(`we found ${postCount} posts`)
+                            log.debug(`we found ${postCount} posts`);
 
                             if (maxPosts && minPosts && postCount < minPosts) {
                                 throw new InfoError(`Minimum post count of ${minPosts} not met, retrying...`, {
