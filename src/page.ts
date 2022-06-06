@@ -338,16 +338,16 @@ export const getPostUrls = async (page: Page, {
                     } as FbPost;
 
                     log.debug('construct FB Post object', {fbpost: content});
-/*
+
 
                     // HACK, we directly inject the post link & image into the final map for given username & post URL
                     const existingPost = await map.read(username).then((p) => p?.posts?.find((post) => post.postUrl === url));
                     const postContent: FbPost = existingPost || {
                         ...content as FbPost,
-                        postStats,
+                        //postStats,
                         postComments: {
                             count: 0,
-                            mode,
+                            //mode,
                             comments: [],
                         },
                     };
@@ -363,7 +363,7 @@ export const getPostUrls = async (page: Page, {
                             } as Partial<FbPage>;
                         });
                     }
-*/
+
 
                     /*
                     if (!parsed.pathname.includes('/groups/') && !parsed.pathname.includes('/profile.php')) {
