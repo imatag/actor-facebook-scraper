@@ -1,4 +1,5 @@
 import Apify from 'apify';
+import AsyncAtomicStore from 'async-atomic-store';
 import type { Page, Response as HTTPResponse } from 'playwright';
 import DelayAbort, { AbortError } from 'delayable-idle-abort-promise';
 import get = require('lodash.get');
@@ -19,6 +20,7 @@ import {
 } from './functions';
 import { CSS_SELECTORS, DESKTOP_ADDRESS, LABELS, PSN_POST_TYPE_BLACKLIST } from './constants';
 import { InfoError } from './error';
+import { relativeTimeRounding } from 'moment';
 
 const { log, sleep } = Apify.utils;
 
@@ -194,13 +196,14 @@ export const getPagesFromSearch = async function* (page: Page, searchLimit: numb
  * Get posts until it reaches the given max
  */
 export const getPostUrls = async (page: Page, {
-    max, date, username, requestQueue, request,
+    max, date, username, requestQueue, request, map
 }: {
     requestQueue: Apify.RequestQueue,
     username: string;
     max?: number;
     date: MinMaxDates,
     request: Apify.Request;
+    map: AsyncAtomicStore.AsyncMap;
     minPosts?: number;
 }) => {
     if (!max) {
@@ -289,6 +292,62 @@ export const getPostUrls = async (page: Page, {
 
                     log.debug("do not requeue post -> we want to grab post link from here")
 
+                    const content = {
+
+                        // postDate: convertDate(content.postDate, true),
+                        postText: '', // @todo not extracted yet
+                        postUrl: url,
+                        postImages: [...new Set([
+                            {
+                                link: postLink,
+                                image: postImg,
+                            }
+                        ])],
+                        //postLinks: [postLink],
+
+                        postLinks: [...new Set(
+                            [postLink].map((link) => {
+                                if (link !== null) {
+                                    return '';
+                                }
+                                try {
+                                    const url = new URL(link);
+
+                                    return url.searchParams.get('u') || '';
+                                } catch (e) {
+                                    return '';
+                                }
+                            }).filter(s => s))],
+
+                    } as FbPost;
+
+                    log.debug('construct FB Post object', {fbpost: content});
+/*
+
+                    // HACK, we directly inject the post link & image into the final map for given username & post URL
+                    const existingPost = await map.read(username).then((p) => p?.posts?.find((post) => post.postUrl === url));
+                    const postContent: FbPost = existingPost || {
+                        ...content as FbPost,
+                        postStats,
+                        postComments: {
+                            count: 0,
+                            mode,
+                            comments: [],
+                        },
+                    };
+
+                    if (!existingPost) {
+                        await map.append(username, async (value) => {
+                            return {
+                                ...value,
+                                posts: [
+                                    postContent,
+                                    ...(value?.posts ?? []),
+                                ],
+                            } as Partial<FbPage>;
+                        });
+                    }
+*/
 
                     /*
                     if (!parsed.pathname.includes('/groups/') && !parsed.pathname.includes('/profile.php')) {
