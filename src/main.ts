@@ -493,11 +493,11 @@ Apify.main(async () => {
                     try {
                         await Promise.all([
                             page.waitForSelector(CSS_SELECTORS.MOBILE_META, {
-                                timeout: 15000, // sometimes the page takes a while to load the responsive interactive version,
+                                timeout: 150000, // sometimes the page takes a while to load the responsive interactive version,
                                 state: 'attached',
                             }),
                             page.waitForSelector(CSS_SELECTORS.MOBILE_BODY_CLASS, {
-                                timeout: 15000, // correctly detected android. if this isn't the case, the image names will change
+                                timeout: 150000, // correctly detected android. if this isn't the case, the image names will change
                                 state: 'attached',
                             }),
                         ]);
@@ -652,7 +652,7 @@ Apify.main(async () => {
                                 }
                             }
 
-                            log.debug("get post urls for page");
+                            log.debug("get post urls for page", {map: map});
 
                             // We don't do anything here, we enqueue posts to be
                             // read on their own phase/label
@@ -663,9 +663,11 @@ Apify.main(async () => {
                                 requestQueue,
                                 request,
                                 minPosts,
+                                map,
                             });
 
                             log.debug(`we found ${postCount} posts`);
+                            log.debug('we have map filled in', {map :map});
 
                             if (maxPosts && minPosts && postCount < minPosts) {
                                 throw new InfoError(`Minimum post count of ${minPosts} not met, retrying...`, {

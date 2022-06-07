@@ -1025,8 +1025,8 @@ export const scrollUntil = async (page: Page, { doScroll = () => true, sleepMill
  * Click "See More" independently of language
  */
 export const clickSeeMore = async (page: Page) => {
-    log.debug('skipping clickSeeMore');
-    return ;
+    //log.debug('skipping clickSeeMore');
+    //return ;
 
     try {
         log.info('Clicking see more', { url: page.url() });

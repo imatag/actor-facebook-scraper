@@ -303,41 +303,31 @@ export const getPostUrls = async (page: Page, {
                                 image: postImg,
                             }
                         ].map((pimg) => {
-
-
                             try {
                                 const url = new URL(pimg.image || '');
-
-
-
                                 pimg.image = url.searchParams.get('url') || pimg.image;
-
-
                             } catch (e) {
                               // do nothing
                             }
-
                             return pimg;
                         }))],
                         //postLinks: [postLink],
-
                         postLinks: [...new Set(
                             [postLink].map((link) => {
-                                if (link !== null) {
-                                    return '';
-                                }
+                                log.debug('post link -> parse to url ', {link: link});
                                 try {
-                                    const url = new URL(link);
-
-                                    return url.searchParams.get('u') || '';
+                                    const url = new URL(link || '');
+                                    return url.searchParams.get('u') || link;
                                 } catch (e) {
-                                    return '';
+                                    // do nothing
                                 }
+                                return link;
                             }).filter(s => s))],
 
                     } as FbPost;
 
                     log.debug('construct FB Post object', {fbpost: content});
+                    log.debug("map ?", {map: map});
 
 
                     // HACK, we directly inject the post link & image into the final map for given username & post URL
@@ -470,8 +460,10 @@ export const getPostUrls = async (page: Page, {
                     }
 
                     try {
+
+                        log.debug("await for loading selector (300s TO)")
                         await page.waitForSelector('#pages_msite_body_contents [data-sigil*="loading"]:not([style])', {
-                            timeout: 1000,
+                            timeout: 300000,
                             state: 'attached',
                         });
 
@@ -697,7 +689,7 @@ export const getFieldInfos = async (page: Page, currentState: Partial<FbPage>): 
         ],
     });
 
-    await clickSeeMore(page);
+    // await clickSeeMore(page);
 
     // execute all selectors in parallel and in
     // the expected keys order
